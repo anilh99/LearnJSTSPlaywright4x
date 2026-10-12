@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.learning.salesforce.tests.LoginTest
+-------------------------------------------------------------------------------
+Tests run: 3, Failures: 0, Errors: 0, Skipped: 1, Time elapsed: 7.265 s -- in com.learning.salesforce.tests.LoginTest

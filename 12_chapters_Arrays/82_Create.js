@@ -23,3 +23,13 @@ console.log(test.length);
 let chars = Array.from("hello");
 // ["h", "e", "l", "l", "o"]
 console.log(chars);
+
+let colors=[];
+colors.push("red");
+colors.push("green");
+colors.push("blue");
+console.log(colors);
+
+let a=[1,2,3,4,5];
+let b=[...a];
+console.log(b);

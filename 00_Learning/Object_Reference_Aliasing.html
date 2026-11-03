@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A visual explanation of JavaScript object references and why changing b.status also changes a.status.">
+  <title>JavaScript Object References — Why Both Variables Change</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #172033;
+      --muted: #526078;
+      --paper: #f4f7fb;
+      --card: #fff;
+      --line: #d7dfeb;
+      --blue: #2457c5;
+      --blue-soft: #eaf1ff;
+      --orange: #a64b08;
+      --orange-soft: #fff1df;
+      --green: #176b48;
+      --green-soft: #e8f7ef;
+      font-family: "Segoe UI", Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      line-height: 1.6;
+    }
+
+    main {
+      width: min(940px, calc(100% - 32px));
+      margin: 40px auto;
+    }
+
+    .hero, section {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      box-shadow: 0 8px 26px rgb(23 32 51 / 6%);
+    }
+
+    .hero { padding: clamp(24px, 5vw, 44px); }
+    section { margin-top: 20px; padding: clamp(20px, 4vw, 32px); }
+
+    .eyebrow {
+      margin: 0 0 8px;
+      color: var(--blue);
+      font-size: .78rem;
+      font-weight: 750;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    h1, h2, p { margin-top: 0; }
+    h1 { margin-bottom: 12px; font-size: clamp(2rem, 5vw, 3rem); line-height: 1.12; }
+    h2 { margin-bottom: 12px; font-size: 1.35rem; }
+    .intro, .muted { color: var(--muted); }
+    .intro { max-width: 700px; margin-bottom: 0; font-size: 1.08rem; }
+
+    .code {
+      overflow-x: auto;
+      margin: 18px 0 0;
+      padding: 20px;
+      border-radius: 12px;
+      background: #111827;
+      color: #eef4ff;
+      font: 500 .98rem/1.8 Consolas, "Courier New", monospace;
+    }
+
+    .code .changed { color: #ffbf78; }
+    .diagram {
+      display: grid;
+      grid-template-columns: minmax(110px, 1fr) 60px minmax(180px, 1.4fr) 60px minmax(110px, 1fr);
+      align-items: center;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .variable, .object, .output {
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    .variable { background: var(--blue-soft); border-color: #b7caff; }
+    .object { background: var(--orange-soft); border-color: #f2c58f; }
+    .output { background: var(--green-soft); border-color: #a9dec2; }
+    .label { display: block; color: var(--muted); font-size: .82rem; }
+    .name { display: block; font: 700 1.25rem Consolas, monospace; }
+    .arrow { color: var(--blue); font-size: 1.8rem; font-weight: 800; text-align: center; }
+    .object .name { color: var(--orange); }
+    .output .name { color: var(--green); }
+
+    .explanation {
+      margin: 20px 0 0;
+      padding: 14px 16px;
+      border-left: 4px solid var(--blue);
+      border-radius: 6px;
+      background: #f2f6ff;
+    }
+
+    .steps { display: grid; gap: 12px; padding: 0; list-style: none; counter-reset: step; }
+    .steps li { counter-increment: step; display: grid; grid-template-columns: 34px 1fr; gap: 12px; }
+    .steps li::before {
+      content: counter(step);
+      display: grid;
+      width: 30px;
+      height: 30px;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--blue-soft);
+      color: var(--blue);
+      font-weight: 750;
+    }
+
+    .note {
+      margin-bottom: 0;
+      padding: 14px 16px;
+      border-radius: 10px;
+      background: #f5f7fa;
+      color: var(--muted);
+    }
+
+    @media (max-width: 640px) {
+      main { margin: 18px auto; }
+      .diagram { grid-template-columns: 1fr; gap: 8px; }
+      .arrow { transform: rotate(90deg); line-height: 1; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header class="hero">
+      <p class="eyebrow">JavaScript · Objects</p>
+      <h1>Why does <code>a.status</code> become <code>"Fail"</code>?</h1>
+      <p class="intro">Because <code>a</code> and <code>b</code> refer to the <strong>same object</strong>. Assigning one object variable to another copies the reference, not the object.</p>
+      <pre class="code"><code>let a = { status: "Pass" };
+let b = a;
+b.status = "Fail";
+console.log(a.status);</code></pre>
+    </header>
+
+    <section aria-labelledby="diagram-title">
+      <h2 id="diagram-title">The reference diagram</h2>
+      <p class="muted">After <code>let b = a</code>, both arrows lead to one object in memory.</p>
+      <div class="diagram" role="img" aria-label="Variables a and b both point to the same object, whose status is Fail; reading a.status produces Fail.">
+        <div class="variable"><span class="label">variable</span><span class="name">a</span></div>
+        <div class="arrow" aria-hidden="true">→</div>
+        <div class="object"><span class="label">one shared object</span><span class="name">{ status: "Fail" }</span></div>
+        <div class="arrow" aria-hidden="true">←</div>
+        <div class="variable"><span class="label">variable</span><span class="name">b</span></div>
+      </div>
+      <p class="explanation">The assignment <code>b = a</code> makes <code>b</code> hold the same object reference as <code>a</code>. So changing the object's <code>status</code> through <code>b</code> is visible when reading it through <code>a</code>.</p>
+    </section>
+
+    <section aria-labelledby="steps-title">
+      <h2 id="steps-title">Run it one line at a time</h2>
+      <ol class="steps">
+        <li><span><code>a</code> refers to an object whose <code>status</code> is <code>"Pass"</code>.</span></li>
+        <li><span><code>b = a</code> copies the reference, so <code>a</code> and <code>b</code> point to that same object.</span></li>
+        <li><span><code>b.status = "Fail"</code> changes the shared object's property.</span></li>
+        <li><span><code>a.status</code> reads that changed property. The console prints <strong>Fail</strong>.</span></li>
+      </ol>
+      <p class="output"><span class="label">Console output</span><span class="name">Fail</span></p>
+    </section>
+
+    <section aria-labelledby="copy-title">
+      <h2 id="copy-title">Want a separate object?</h2>
+      <p>Make a shallow copy with object spread before changing it:</p>
+      <pre class="code"><code>let a = { status: "Pass" };
+let b = { ...a };
+b.status = "Fail";
+console.log(a.status); // Pass
+console.log(b.status); // Fail</code></pre>
+      <p class="note">Object spread makes a new outer object. It is a <strong>shallow</strong> copy: if the object contains nested objects, those nested values are still shared unless copied separately.</p>
+    </section>
+  </main>
+</body>
+</html>
